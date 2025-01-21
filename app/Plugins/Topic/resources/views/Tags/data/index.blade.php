@@ -4,7 +4,7 @@
             <div class="card-header">
                 <ol class="breadcrumb breadcrumb-arrows" aria-label="breadcrumbs">
                     <li class="breadcrumb-item"><a href="/">首页</a></li>
-                    <li class="breadcrumb-item"><a href="/tags">标签列表</a></li>
+                    <li class="breadcrumb-item"><a href="/tags">板块列表</a></li>
                     <li class="breadcrumb-item active" aria-current="page"><a href="">{!! $data->icon !!} {{$data->name}}</a></li>
                 </ol>
             </div>
@@ -36,7 +36,7 @@
                         </li>
                     @endif
                     @foreach($topic_menu as $data)
-                        @if(\Hyperf\Utils\Str::contains(core_http_url(),$data['parameter']))
+                        @if(\Hyperf\Stringable\Str::contains(core_http_url(),$data['parameter']))
                             <li class="nav-item">
                                 <a class="nav-link active fw-bold" href="{{$data['url']}}">
                                     {!!$data['icon']!!}{{$data['name']}}</a>

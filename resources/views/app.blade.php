@@ -6,17 +6,27 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="referrer" content="same-origin">
+
     <title>@yield("title","标题") - {{ get_options('title', config('app_name', 'CodeFec')) }}</title>
-    <link href="{{ '/tabler/css/tabler.min.css' }}" rel="stylesheet" />
-    <link href="{{ '/tabler/css/tabler-flags.min.css' }}" rel="stylesheet" />
-    <link href="{{ '/tabler/css/tabler-payments.min.css' }}" rel="stylesheet" />
-    <link href="{{ '/tabler/css/tabler-vendors.min.css' }}" rel="stylesheet" />
+    <link href="{{ '/tabler/css/tabler.min.css' }}" rel="stylesheet"/>
+    <link href="{{ '/tabler/css/tabler-flags.min.css' }}" rel="stylesheet"/>
+    <link href="{{ '/tabler/css/tabler-payments.min.css' }}" rel="stylesheet"/>
+    <link href="{{ '/tabler/css/tabler-vendors.min.css' }}" rel="stylesheet"/>
     <link rel="stylesheet" href="{{ mix('css/app.css') }}">
-    <link rel="icon" href="{{get_options('theme_common_icon','/logo.svg')}}" type="image/x-icon" />
-    <link rel="shortcut icon" href="{{get_options('theme_common_icon','/logo.svg')}}" type="image/x-icon" />
-    <script src="/js/jquery-3.6.0.min.js"></script>
-    <script>var csrf_token="{{csrf_token()}}";</script>
+    <link rel="icon" href="{{get_options('theme_common_icon','/logo.svg')}}" type="image/x-icon"/>
+    <link rel="shortcut icon" href="{{get_options('theme_common_icon','/logo.svg')}}" type="image/x-icon"/>
+    <script src="/js/jquery-3.7.1.min.js"></script>
+    <script>
+        var csrf_token = "{{csrf_token()}}";
+        var theme_status = @if(session()->has('theme')) {{"true"}} @else {{"false"}} @endif;
+        const captcha_config = {
+            cloudflare: "{{get_options("admin_captcha_cloudflare_turnstile_website_key","1x00000000000000000000AA")}}",
+            recaptcha: "{{get_options("admin_captcha_recaptcha_website_key")}}",
+            service:"{{get_options("admin_captcha_service")}}"
+        }
+        const system_theme = "{{session()->get('theme',session()->get('auto_theme','light'))}}"
+        var auto_theme = "{{session()->get('auto_theme','light')}}";
+    </script>
     <link rel="stylesheet" href="{{ mix('iziToast/css/iziToast.min.css') }}">
     <script src="{{ mix('iziToast/js/iziToast.min.js') }}"></script>
     <!-- 自定义CSS -->
@@ -26,7 +36,7 @@
     @yield('css')
 </head>
 
-<body class="antialiased">
+<body data-bs-theme="{{session()->get('theme',session()->get('auto_theme','light'))}}" class="antialiased">
 @include("layouts.errors")
 @include("layouts._msg")
 <div id="app" class="wrapper {{ path_class() }}-page">

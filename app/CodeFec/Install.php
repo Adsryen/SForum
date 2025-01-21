@@ -17,7 +17,7 @@ use App\Plugins\Topic\src\Models\Topic;
 use Hyperf\Database\Schema\Blueprint;
 use Hyperf\Database\Schema\Schema;
 use Hyperf\DbConnection\Db;
-use Hyperf\Utils\Str;
+use Hyperf\Stringable\Str;
 use PDOException;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -187,7 +187,7 @@ class Install
         $input = new ArrayInput($params);
         $output = new NullOutput();
 
-        $container = \Hyperf\Utils\ApplicationContext::getContainer();
+        $container = \Hyperf\Context\ApplicationContext::getContainer();
 
         /** @var Application $application */
         $application = $container->get(\Hyperf\Contract\ApplicationInterface::class);
@@ -195,7 +195,39 @@ class Install
 
         $exitCode = $application->run($input, $output);
 
-        $this->command->info('数据库迁移成功!');
+        foreach (getEnPlugins() as $name) {
+            $plugin_name = $name;
+
+            if (is_dir(plugin_path($plugin_name . '/resources/views')) && ! is_dir(BASE_PATH . '/resources/views/plugins')) {
+                \Swoole\Coroutine\System::exec('mkdir ' . BASE_PATH . '/resources/views/plugins');
+            }
+            if (is_dir(plugin_path($plugin_name . '/resources/assets'))) {
+                if (! is_dir(public_path('plugins'))) {
+                    mkdir(public_path('plugins'));
+                }
+                if (! is_dir(public_path('plugins/' . $plugin_name))) {
+                    mkdir(public_path('plugins/' . $plugin_name));
+                }
+                copy_dir(plugin_path($plugin_name . '/resources/assets'), public_path('plugins/' . $plugin_name));
+            }
+            if (is_dir(plugin_path($plugin_name . '/src/migrations'))) {
+                $params = ['command' => 'CodeFec:migrate', 'path' => plugin_path($plugin_name . '/src/migrations')];
+
+                $input = new ArrayInput($params);
+                $output = new NullOutput();
+
+                $container = \Hyperf\Context\ApplicationContext::getContainer();
+
+                /** @var Application $application */
+                $application = $container->get(\Hyperf\Contract\ApplicationInterface::class);
+                $application->setAutoExit(false);
+
+                // 这种方式: 不会暴露出命令执行中的异常, 不会阻止程序返回
+                $exitCode = $application->run($input, $output);
+            }
+        }
+
+        $this->command->info('数据迁移成功!');
 
 
         // 下一步
@@ -264,7 +296,7 @@ class Install
         $input = new ArrayInput($params);
         $output = new NullOutput();
 
-        $container = \Hyperf\Utils\ApplicationContext::getContainer();
+        $container = \Hyperf\Context\ApplicationContext::getContainer();
 
         /** @var Application $application */
         $application = $container->get(\Hyperf\Contract\ApplicationInterface::class);

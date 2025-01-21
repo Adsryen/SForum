@@ -2819,7 +2819,6 @@
 body {
   -webkit-backface-visibility: hidden;
   overflow-x: hidden;
-  color: #121212;
   font-feature-settings: "tnum";
   line-height: 1.4;
   font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, PingFang SC, Microsoft YaHei, Source Han Sans SC, Noto Sans CJK SC, WenQuanYi Micro Hei, sans-serif;
@@ -2933,4 +2932,29 @@ body {
 
 .icon-win2 {
   background-image: url(/plugins/User/image/icon/win2.png);
+}
+
+.icon-mobile {
+  background-image: url(/plugins/User/image/icon/mobile.png);
+}
+
+.icon-desktop {
+  background-image: url(/plugins/User/image/icon/computer.png);
+}
+
+.icon-wechat {
+  background-image: url(/plugins/User/image/icon/wechat.png);
+}
+
+.icon-xiaomi {
+  background-image: url(/plugins/User/image/icon/xiaomi.png);
+}
+
+.icon-huawei {
+  background-image: url(/plugins/User/image/icon/huawei.png);
+}
+
+.text-muted-sm {
+  color: rgba(134, 142, 150, 0.8) !important;
+  font-size: 11px;
 }

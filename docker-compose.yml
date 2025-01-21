@@ -1,8 +1,7 @@
 version: '3'
 services:
   web:
-    #zhuchunshu/sforum:v2 or ghcr.io/zhuchunshu/sforum:v2
-    image: zhuchunshu/sforum
+    image: zhuchunshu/sforum:latest
     ports:
       - "9501:9501"
 
@@ -12,6 +11,7 @@ services:
       - DB_DATABASE=sforum
       - DB_USERNAME=sforum
       - DB_PASSWORD=sforum
+      - SCAN_CACHEABLE=true
 
     depends_on:
       - db

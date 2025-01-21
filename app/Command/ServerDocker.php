@@ -17,11 +17,10 @@ use Hyperf\Watcher\Option;
 use Hyperf\Watcher\Watcher;
 use Psr\Container\ContainerInterface;
 use Swoole\Coroutine\System;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @Command
- */
 #[Command]
 class ServerDocker extends HyperfCommand
 {
@@ -33,7 +32,6 @@ class ServerDocker extends HyperfCommand
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-
         parent::__construct('server:docker');
         $this->container = $container;
         $this->addOption('file', 'F', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, '', []);
@@ -41,42 +39,26 @@ class ServerDocker extends HyperfCommand
         $this->addOption('no-restart', 'N', InputOption::VALUE_NONE, 'Whether no need to restart server');
     }
 
-    public function configure()
-    {
-        parent::configure();
-        $this->setDescription('start docker server');
-    }
-
-    public function handle()
+    public function handle(): void
     {
         if (! file_exists(BASE_PATH . '/app/CodeFec/storage/install.lock')) {
             if (! is_dir(BASE_PATH . '/app/CodeFec/storage')) {
                 System::exec('cd ' . BASE_PATH . '/app/CodeFec && mkdir storage');
             }
             $myfile = fopen(BASE_PATH . '/app/CodeFec/storage/install.step.lock', 'wb') or exit('Unable to open file!');
-            fwrite($myfile, "5");
+            fwrite($myfile, '5');
             fclose($myfile);
-            $install = make(DockerInstall::class, [
-                'output' => $this->output,
-                'command' => $this,
-            ]);
-
+            $install = make(DockerInstall::class, ['output' => $this->output, 'command' => $this]);
             $install->run();
         }
-        go(function () {
-            system_clear_cache();
-        });
-        $option = make(Option::class, [
-            'dir' => $this->input->getOption('dir'),
-            'file' => $this->input->getOption('file'),
-            'restart' => ! $this->input->getOption('no-restart'),
-        ]);
-
-        $watcher = make(Watcher::class, [
-            'option' => $option,
-            'output' => $this->output,
-        ]);
-
+        $option = make(Option::class, ['dir' => $this->input->getOption('dir'), 'file' => $this->input->getOption('file'), 'restart' => ! $this->input->getOption('no-restart')]);
+        $watcher = make(Watcher::class, ['option' => $option, 'output' => $this->output]);
         $watcher->run();
+    }
+
+    public function configure()
+    {
+        parent::configure();
+        $this->setDescription('start docker server');
     }
 }

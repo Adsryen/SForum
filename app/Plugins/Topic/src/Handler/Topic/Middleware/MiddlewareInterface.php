@@ -12,5 +12,5 @@ namespace App\Plugins\Topic\src\Handler\Topic\Middleware;
 
 interface MiddlewareInterface
 {
-    public function handler($data,\Closure $next);
+    public function handler($data, \Closure $next);
 }

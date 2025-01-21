@@ -11,8 +11,13 @@ use Hyperf\HttpServer\Annotation\Middleware;
 #[Middleware(AdminMiddleware::class)]
 class WebController
 {
-	#[GetMapping(path:"Releases/{id}")]
+	#[GetMapping("Releases/{id}")]
 	public function Releases($id){
 		return view("admin.panel.Releases",['id' => $id]);
 	}
+
+    #[GetMapping("Releases/current/{id}")]
+    public function current_releases($id){
+        return view("admin.panel.current_releases",['id' => $id]);
+    }
 }

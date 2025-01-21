@@ -25,6 +25,15 @@
                 <span class="form-check-label">开启友链功能</span>
             </label>
         </div>
+
+        <div class="col-lg-4">
+            <div class="form-label">黏性导航栏</div>
+            <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" v-model="data.theme_common_navbar_sticky">
+                <span class="form-check-label">开启黏性导航栏</span>
+            </label>
+        </div>
+
         <div class="col-lg-4">
             <div class="form-label">友链显示位置</div>
             <select v-model="data.theme_common_friend_links_position" class="form-select">
@@ -50,6 +59,59 @@
             <div class="form-label">body标签结尾自定义代码</div>
             <input type="text" v-model="data.theme_common_diy_code_body" class="form-control">
             <small>请输入小部件调用代码, <a href="/admin/hook/components" target="_blank">点我进入小部件页面</a> </small>
+        </div>
+
+        <div class="col-lg-4 align-self-center">
+            <div class="form-label">首页移动端显示板块图标</div>
+            <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" v-model="data.theme_home_tag_icon">
+                <span class="form-check-label">开启</span>
+            </label>
+        </div>
+
+        <div class="col-lg-4 align-self-center">
+            <div class="form-label">右侧边栏小工具黏性</div>
+            <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" v-model="data.theme_right_tool_sticky">
+                <span class="form-check-label">关闭</span>
+            </label>
+        </div>
+
+        <div class="col-lg-4 align-self-center">
+            <div class="form-label">首页文章标题自动截断</div>
+            <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" v-model="data.theme_home_title_truncate">
+                <span class="form-check-label">开启</span>
+            </label>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="form-label">注册/登录页图片</div>
+            <input type="text" class="form-control" v-model="data.sign_page_image">
+        </div>
+
+        <div class="col-lg-4 align-self-center">
+            <div class="form-label">首页签到小部件</div>
+            <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" v-model="data.theme_home_task_widget_checkin">
+                <span class="form-check-label">开启</span>
+            </label>
+        </div>
+
+        <div class="col-lg-4 align-self-center">
+            <div class="form-label">移动端隐藏全部小部件卡片</div>
+            <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" v-model="data.theme_home_widget_hidden">
+                <span class="form-check-label">开启</span>
+            </label>
+        </div>
+
+        <div class="col-lg-4 align-self-center">
+            <div class="form-label">移动端隐藏个人信息 卡片</div>
+            <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" v-model="data.theme_home_widget_hidden_userdataCard">
+                <span class="form-check-label">开启</span>
+            </label>
         </div>
     </div>
 

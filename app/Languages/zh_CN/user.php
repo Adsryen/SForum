@@ -9,7 +9,8 @@ return [
 	'registration date' => '注册日期',
 	'user group info' => '用户组的信息',
 	'notice list' => '通知列表',
-	'clean notice' => '清空未读通知',
+	'clean notice' => '清空通知',
+	'read all' => '全部已读',
 	'no bio' => '这个人没有签名',
 	'personal website' => '个人网站',
 	'other information' => '其他信息',
@@ -18,7 +19,7 @@ return [
 	'topic count' => '主题数量',
 	'collection count' => '收藏数量',
 	'fans count' => '粉丝数量',
-	'topic tag count' => '标签数量',
+	'topic tag count' => '板块数量',
 	'QQ' => 'QQ',
 	'wechat' => '微信',
 	'email' => '邮箱',
@@ -29,5 +30,12 @@ return [
     'comment num' => '评论数量',
     'fans num' => '粉丝数量',
     'last login time' => '最后登陆',
-    'data' => '数据'
+    'data' => '数据',
+	'already_checkin_tips' => '你今天已经签到过了',
+	'not_checkin_tips' => '你今天还没有签到',
+    'task' => [
+        'checkin' => '签到',
+        'set_avatar_done' => '已设置头像',
+        'set_avatar_undone' => '还未设置头像',
+    ]
 ];

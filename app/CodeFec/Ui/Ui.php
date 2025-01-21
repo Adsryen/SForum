@@ -1,7 +1,7 @@
 <?php
 namespace App\CodeFec\Ui;
 
-use Illuminate\Support\Arr;
+use Hyperf\Collection\Arr;
 
 class Ui implements UiInterface {
 
@@ -26,7 +26,7 @@ class Ui implements UiInterface {
             "type" => $type,
             "value" => $value,
         ];
-        $this->list = Arr::add($this->list,$id,$arr);
+        $this->list = Arr::set($this->list,$id,$arr);
         return true;
     }
 

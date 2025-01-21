@@ -47,19 +47,28 @@
                     </div>
 
                     <div class="col-lg-3">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">附加信息</h3>
-                            </div>
-                            <div class="card-body">
-                                <div class="row row-cards">
-                                    @foreach(Itf()->get('topic-create-options') as $k=>$v)
-                                        @if(call_user_func($v['enable'])===true)
-                                            @include($v['view'])
-                                        @endif
-                                    @endforeach
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">附加信息</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row row-cards">
+                                            @foreach(Itf()->get('topic-create-options') as $k=>$v)
+                                                @if(call_user_func($v['enable'])===true)
+                                                    @include($v['view'])
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            @foreach(Itf()->get('topic-create-tools') as $k=>$v)
+                                @if(call_user_func($v['enable'])===true)
+                                    @include($v['view'])
+                                @endif
+                            @endforeach
                         </div>
                     </div>
                     <div class="col-12">
@@ -74,6 +83,16 @@
 @endsection
 
 @section('scripts')
+    <script>
+        const sforumConfig = {
+            // 代币名称
+            tokenName: {
+                credit: "{{get_options('wealth_credit_name','积分')}}",
+                golds: "{{get_options('wealth_golds_name','金币')}}",
+                money: "{{get_options('wealth_money_name','余额')}}",
+            },
+        }
+    </script>
     @foreach(Itf()->get('topic-create-data') as $k=>$v)
         @if(call_user_func($v['enable'])===true && isset($v['scripts']))
             @foreach($v['scripts'] as $script)

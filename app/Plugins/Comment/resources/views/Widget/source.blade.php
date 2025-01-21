@@ -1,5 +1,5 @@
 <div core-show="comment" comment-id="{{$value->id}}"
-     class="col-md-12 markdown mt-2 mb-2">
+     class="col-md-12 markdown mt-3 mb-2" style="font-size: 15px">
     @if($value->parent_id)
         @if(@$value->parent->id)
             <div class="quote">
@@ -9,7 +9,7 @@
                         <span style="color:#999999">{{$value->parent->user->username}} {{__("app.Published on")}} {{format_date($value->parent->created_at)}}</span>
                     </a>
                     <br>
-                    {!! \Hyperf\Utils\Str::limit(remove_bbCode(strip_tags($value->parent->post->content)),60) !!}
+                    {!! \Hyperf\Stringable\Str::limit(remove_bbCode(strip_tags($value->parent->post->content)),60) !!}
                 </blockquote>
             </div>
         @else

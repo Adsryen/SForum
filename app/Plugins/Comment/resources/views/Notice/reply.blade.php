@@ -3,10 +3,10 @@
         <div class="col-md-12">
             <div class="row">
                 <div class="col-auto">
-                    <span class="avatar" style="background-image: url({{super_avatar($user_data)}})"></span>
+                    <span class="avatar" style="background-image: url({{super_avatar(auth()->data())}})"></span>
                 </div>
                 <div class="col text-truncate">
-                    <a style="white-space:nowrap;" href="/users/{{$user_data->id}}.html" class="text-body text-truncate">{{$user_data->username}}</a>
+                    <a style="white-space:nowrap;" href="/users/{{auth()->id()}}.html" class="text-body text-truncate">{{auth()->data()->username}}</a>
                     <br>
                     <small data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="{{$data->created_at}}" class="text-muted text-truncate mt-n1">
                         {{__("app.Published on")}}:{{$data->created_at}}
@@ -24,10 +24,10 @@
                         <span style="color:#999999" >{{$data->parent->user->username}} {{__("app.Published on")}} {{$data->created_at}}</span>
                     </a>
                     <br>
-                    {{\Hyperf\Utils\Str::limit(remove_bbCode(strip_tags($data->parent->post->content)),60)}}
+                    {{\Hyperf\Stringable\Str::limit(remove_bbCode(strip_tags($data->parent->post->content)),60)}}
                 </blockquote>
             </div>
-            {{\Hyperf\Utils\Str::limit(remove_bbCode(strip_tags($data->post->content)),100)}}
+            {{\Hyperf\Stringable\Str::limit(remove_bbCode(strip_tags($data->post->content)),100)}}
         </div>
     </div>
 </div>

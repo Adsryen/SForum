@@ -1,5 +1,5 @@
 @extends("App::app")
-@section('title','我的余额')
+@section('title','我的'.get_options('wealth_money_name', '余额'))
 @section('content')
 
     <div class="row row-cards">
@@ -16,8 +16,8 @@
                         <thead>
                         <tr>
                             <th>#</th>
-                            <th class="text-nowrap">变更前余额</th>
-                            <th class="text-nowrap">变更后余额</th>
+                            <th class="text-nowrap">变更前{{get_options('wealth_money_name', '余额')}}</th>
+                            <th class="text-nowrap">变更后{{get_options('wealth_money_name', '余额')}}</th>
                             <th class="text-nowrap">绑定订单</th>
                             <th class="text-nowrap">备注</th>
                             <th class="text-nowrap">创建时间</th>

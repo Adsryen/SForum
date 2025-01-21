@@ -1,8 +1,9 @@
-@if($comment_count)
+@if($comment->total())
     @if(get_options("comment_topic_show_type","default")==="default")
         @php $caina = false; @endphp
         @if($data->user_id == auth()->id() && Authority()->check("comment_caina")) @php $caina = true;@endphp @endif
         @if(Authority()->check("admin_comment_caina")) @php $caina = true; @endphp @endif
+        @php($comment_change_show = get_options('comment_change_show'))
         @if($comment->count())
             @if(@isset($data->post->options->only_author) && $data->post->options->only_author)
                 @php($posts_options_only_author = true)
@@ -35,7 +36,16 @@
                                 <div>
                                     <label class="form-label">回复内容</label>
                                     <input type="hidden" name="comment_id" value="" id="reply-comment-id">
-                                    <textarea class="form-control" name="content" id="reply-comment-content" data-bs-toggle="autosize" placeholder="说点什么..."></textarea>
+                                    @if($data->status==="lock")
+                                        <textarea class="form-control" name="content" id="reply-comment-content" data-bs-toggle="autosize" placeholder="主题已经关闭" disabled></textarea>
+                                    @else
+                                        <textarea class="form-control" name="content" id="reply-comment-content" data-bs-toggle="autosize" placeholder="说点什么..."></textarea>
+                                    @endif
+                                    @if(get_options('comment_emoji_close')!=='true')
+                                        <div class="mt-3 ">
+                                            <div class="OwO" id="create-comment-owo2">[OωO表情]</div>
+                                        </div>
+                                    @endif
                                 </div>
                             @endif
                         </div>
@@ -65,23 +75,21 @@
                         <h3 class="card-title">全部评论</h3>
                         <div class="card-actions">
                             @if($comment_sort=="desc")
-                                <a href="?{{ core_http_build_query(request()->all(),['comment_sort' => 'asc'])  }}">倒序显示↓</a>
-
+                                <a href="?{{ core_http_build_query(request()->all(),['comment_sort' => 'asc'])  }}">正序显示↑</a>
                             @else
-                                <a href="?{{ core_http_build_query(request()->all(),['comment_sort' => 'desc'])  }}">正序显示↑</a>
-
+                                <a href="?{{ core_http_build_query(request()->all(),['comment_sort' => 'desc'])  }}">倒序显示↓</a>
                             @endif
                         </div>
                     </div>
 
-                    <div class="card-body">
+                    <div class="card-body" id="comment-list">
 
                         <div class="row row-cards">
                             @foreach($comment as $key=>$value)
                                 @if(!$loop->first)<div class="hr-text mt-1 mb-1">next</div>@endif
-                                <div id="comment-{{$value->id}}" name="comment-{{$value->id}}" class="col-md-12">
-                                    <div class="@if($value->optimal) comment-optimal @endif">
-                                        <div class="mx-2 my-2">
+                                <div id="comment-{{$value->id}}" name="comment-{{$value->id}}" class="col-md-12 mt-1 @if($comment_page==$value->id) bg-cyan-lt @endif">
+                                    <div class="@if($value->optimal)comment-optimal @endif">
+                                        <div class="mt-2">
                                             <div class="row">
                                                 {{--                                    作者信息--}}
                                                 <div class="col-md-12">
@@ -90,13 +98,13 @@
                                                         <div class="col-auto" id="comment-user-avatar-{{$value->id}}"
                                                              comment-show="user-data" user-id="{{$value->user_id}}">
                                                             <a href="/users/{{$value->user->id}}.html"><span
-                                                                        class="avatar"
+                                                                        class="avatar avatar-rounded"
                                                                         style="background-image: url({{super_avatar($value->user)}})">
 
                                                         </span></a>
                                                         </div>
                                                         {{--                                            作者信息--}}
-                                                        <div class="col text-truncate my-0" style="margin-left: -10px">
+                                                        <div class="col text-truncate my-0">
                                                             {!! u_username($value->user,['extends' => true,'comment' => true,'class' =>['text-body','text-truncate'],'style' => 'white-space:nowrap;']) !!}
                                                             @if($value->optimal) <span
                                                                     class="badge badge-pill bg-teal">{{__("topic.comment.best reply")}}</span> @endif
@@ -111,12 +119,16 @@
                                                                        comment-id="{{$value->id}}">Loading<span
                                                                             class="animated-dots"></span></small>
                                                             @endif
+                                                            @if($comment_change_show==="true" && $value->post->updated_at>$value->post->created_at)
+                                                                | <small data-bs-toggle="popover" data-bs-placement="top" data-bs-html="true" data-bs-content="<p>此评论在{{format_date($value->post->updated_at)}}进行了修改</p><p class='mb-0'><a>最后修改时间为:{{$value->post->updated_at}}</a></p>"
+                                                                       class="text-muted text-truncate mt-n1 cursor-pointer">修改过</small>
+                                                            @endif
                                                         </div>
                                                         {{--                                            楼层信息--}}
                                                         <div class="col-auto">
                                                             <a href="/{{$data->id}}.html/{{$value->id}}?page={{$comment->currentPage()}}">
                                                                 {{__("topic.floor",['floor' => ($key + 1)+(($comment->currentPage()-1)*get_options('comment_page_count',15)) ])}}</a>
-                                                            @if($caina)
+                                                            @if($caina && !$value->deleted_at)
                                                                 ·
                                                                 <a style="text-decoration:none;"
                                                                    comment-click="comment-caina-topic"
@@ -136,21 +148,28 @@
                                                     </div>
                                                 </div>
                                                 {{--                                    评论内容--}}
-                                                {{--                                        <div class="col-md-12">--}}
-                                                {{--                                            <div class="hr-text"--}}
-                                                {{--                                                 style="margin-bottom:8px;margin-top:15px">{{__("topic.comment.comment content")}}</div>--}}
-                                                {{--                                        </div>--}}
-                                                @if($posts_options_only_author && auth()->id()!=$value->user_id && auth()->id()!=$data->user_id)
-                                                    @include('Comment::Widget.only-author')
+
+                                                @if(!$value->deleted_at)
+                                                    @if($value->status!=='report')
+                                                        @if($posts_options_only_author && auth()->id()!=$value->user_id && auth()->id()!=$data->user_id)
+                                                            @include('Comment::Widget.only-author')
+                                                        @else
+                                                            @include('Comment::Widget.source')
+                                                        @endif
+                                                    @else
+                                                        @include('Comment::Widget.report')
+                                                    @endif
                                                 @else
-                                                    @include('Comment::Widget.source')
+                                                    @include('Comment::Widget.deleted')
                                                 @endif
                                                 {{--                                    操作--}}
                                                 {{--                                        <div class="col-md-12">--}}
                                                 {{--                                            <div class="hr-text"--}}
                                                 {{--                                                 style="margin-bottom:5px;margin-top:15px">{{__("topic.comment.operate")}}</div>--}}
                                                 {{--                                        </div>--}}
-                                                @include('Comment::shared.footer_tool')
+                                                @if(auth()->check() && !$value->deleted_at)
+                                                    @include('Comment::shared.footer_tool')
+                                                @endif
                                             </div>
                                         </div>
 
@@ -162,7 +181,7 @@
                     </div>
 
                     @if($comment->hasPages())
-                        <div class="card-footer pb-0">
+                        <div class="card-footer pb-0 pt-0">
                             {!! make_page($comment) !!}
                         </div>
                     @endif

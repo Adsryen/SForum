@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license  https://github.com/zhuchunshu/SForum/blob/master/LICENSE
  */
 use App\Plugins\User\src\Models\UsersSetting;
-use Hyperf\Utils\ApplicationContext;
+use Hyperf\Context\ApplicationContext;
 use Qbhy\HyperfAuth\AuthManager;
 
 if (! function_exists('auth')) {
@@ -73,7 +73,7 @@ if (! function_exists('file_suffix')) {
     function file_suffix(string $path): string
     {
         $path = substr($path, strrpos($path, '/') + 1);
-        return \Hyperf\Utils\Str::after($path, '.');
+        return \Hyperf\Stringable\Str::after($path, '.');
     }
 }
 
@@ -85,7 +85,7 @@ if (! function_exists('path_file_name')) {
 }
 
 if (! function_exists('get_user_options')) {
-    function get_user_options($user_id): App\Plugins\User\src\Models\UsersOption|\Hyperf\Database\Model\Collection|\Hyperf\Database\Model\Model|bool|array
+    function get_user_options($user_id): App\Plugins\User\src\Models\UsersOption | \Hyperf\Database\Model\Collection | \Hyperf\Database\Model\Model | bool | array
     {
         $options = \App\Plugins\User\src\Models\UsersOption::find($user_id);
         if (! $options) {
@@ -106,7 +106,7 @@ if (! function_exists('get_user_settings')) {
     function get_user_settings(int | string $user_id, string $name, string $default = '')
     {
         if (! cache()->has('user.settings.' . $user_id . '.' . $name)) {
-            cache()->set('user.settings.' . $user_id . '.' . $name, @\App\Plugins\User\src\Models\UsersSetting::query()->where(['user_id' => $user_id, 'name' => $name])->first()->value);
+            cache()->set('user.settings.' . $user_id . '.' . $name, @\App\Plugins\User\src\Models\UsersSetting::query()->where(['user_id' => $user_id, 'name' => $name])->value('value') ?: null);
         }
         return core_default(cache()->get('user.settings.' . $user_id . '.' . $name), $default);
     }
@@ -136,5 +136,82 @@ if (! function_exists('set_user_settings')) {
             }
         }
         user_settings_clear($user_id);
+    }
+}
+
+// 获取用户积分资产信息
+if (! function_exists('get_user_assets_credits')) {
+    /**
+     * 获取用户积分.
+     * @param int|string $user_id
+     * @return float|\Hyperf\Utils\HigherOrderCollectionProxy|\Hyperf\Utils\HigherOrderTapProxy|int|mixed
+     */
+    function get_user_assets_credits(string | int $user_id)
+    {
+        // 获取用户options_id
+        $options_id = \App\Plugins\User\src\Models\User::find($user_id)->options_id;
+        // 获取用户资产信息
+        $options = \App\Plugins\User\src\Models\UsersOption::find($options_id);
+        return $options->credits ?: 0;
+    }
+}
+
+// 获取用户金币资产信息
+if (! function_exists('get_user_assets_gold')) {
+    /**
+     * 获取用户金币
+     * @param int|string $user_id
+     * @return float|\Hyperf\Utils\HigherOrderCollectionProxy|\Hyperf\Utils\HigherOrderTapProxy|int|mixed
+     */
+    function get_user_assets_gold(string | int $user_id)
+    {
+        // 获取用户options_id
+        $options_id = \App\Plugins\User\src\Models\User::find($user_id)->options_id;
+        // 获取用户资产信息
+        $options = \App\Plugins\User\src\Models\UsersOption::find($options_id);
+        return $options->golds ?: 0;
+    }
+}
+
+// 获取用户余额资产信息
+if (! function_exists('get_user_assets_money')) {
+    /**
+     * 获取用户余额.
+     * @param int|string $user_id
+     * @return \Hyperf\Utils\HigherOrderCollectionProxy|\Hyperf\Utils\HigherOrderTapProxy|int|mixed
+     */
+    function get_user_assets_money(string | int $user_id): mixed
+    {
+        // 获取用户options_id
+        $options_id = \App\Plugins\User\src\Models\User::find($user_id)->options_id;
+        // 获取用户资产信息
+        $options = \App\Plugins\User\src\Models\UsersOption::find($options_id);
+        return $options->money ?: 0;
+    }
+}
+
+if (! function_exists('user_option')) {
+    function user_option(int | string $user_id): App\Plugins\User\src\Models\UsersOption | \Hyperf\Database\Model\Collection | \Hyperf\Database\Model\Model | array | null
+    {
+        $user = \App\Plugins\User\src\Models\User::find($user_id);
+        $options_id = $user->options_id;
+        return \App\Plugins\User\src\Models\UsersOption::find($options_id);
+    }
+}
+
+if (! function_exists('numberToUniqueLetter')) {
+    function numberToUniqueLetter($number): string
+    {
+        $letters = 'abcdefghijklmnopqrstuvwxyz';
+        $base = 26; // 字母表的长度
+        $result = '';
+
+        while ($number > 0) {
+            $remainder = ($number - 1) % $base; // 得到余数
+            $result = $letters[$remainder] . $result;
+            $number = intdiv($number - 1, $base); // 更新商
+        }
+
+        return $result;
     }
 }

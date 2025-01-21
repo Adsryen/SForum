@@ -1,9 +1,9 @@
 @extends("app")
 
-@section('title',"帖子标签管理")
+@section('title',"板块管理")
 
 @section('headerBtn')
-    <a href="/admin/topic/tag/create" class="btn btn-primary">创建新标签</a>
+    <a href="/admin/topic/tag/create" class="btn btn-primary">创建新板块</a>
 @endsection
 
 @section('content')
@@ -34,7 +34,7 @@
                                 <div style="width: 25px;height:25px;background-color:{{ $value->color }};border-radius:5px;"></div>
                             </td>
                             @if($value->description)
-                                <td class="text-muted">{{ \Hyperf\Utils\Str::limit($value->description,100) }}</td>
+                                <td class="text-muted">{{ \Hyperf\Stringable\Str::limit($value->description,100) }}</td>
                             @else
                                 <td class="text-muted">{{__("app.no description")}}</td>
                             @endif

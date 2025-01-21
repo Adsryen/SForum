@@ -4,7 +4,7 @@
 namespace App\CodeFec\Itf\Route;
 
 
-use Illuminate\Support\Arr;
+use Hyperf\Collection\Arr;
 
 class Route implements RouteInterface
 {
@@ -13,7 +13,7 @@ class Route implements RouteInterface
 
     public function set($route, $callback)
     {
-        $this->list = Arr::add($this->list, $route, $callback);
+        $this->list = Arr::set($this->list, $route, $callback);
     }
 	
 	public function re($route, $callback): bool

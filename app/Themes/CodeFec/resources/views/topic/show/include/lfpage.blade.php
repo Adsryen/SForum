@@ -1,4 +1,4 @@
-
+@if(get_options('topic_previous_page_close')!=='true')
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('topic_show_include_ifpage', () => ({
@@ -9,7 +9,6 @@
                         'Content-Type': 'application/json'
                     }, body: JSON.stringify({_token: csrf_token, topic_id: '{{$data->id}}'})
                 })).json().then(res => res.result.result);
-                console.log(this.data)
             },
         }))
     })
@@ -57,3 +56,4 @@
         </div>
     </div>
 </div>
+@endif
