@@ -8,29 +8,30 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{$title}} - {{ get_options('title', config('app_name', 'CodeFec')) }}</title>
     <link rel="stylesheet" href="{{ mix('plugins/Core/css/app.css') }}">
-    <link rel="icon" href="/logo.svg" type="image/x-icon" />
-    <link rel="shortcut icon" href="/logo.svg" type="image/x-icon" />
-    <script>
-        var csrf_token = "{{ csrf_token() }}";
-    </script>
     <meta name="description" content="{{ get_options('description') }}">
     <meta name="keywords" content="{{ get_options('keywords') }}">
-    <link rel="icon" href="/logo.svg" type="image/x-icon" />
-    <link rel="shortcut icon" href="/logo.svg" type="image/x-icon" />
+    <link rel="icon" href="{{get_options('theme_common_icon','/logo.svg')}}" type="image/x-icon"/>
+    <link rel="shortcut icon" href="{{get_options('theme_common_icon','/logo.svg')}}" type="image/x-icon"/>
     <link href="{{ '/tabler/css/tabler.min.css' }}" rel="stylesheet" />
     <link href="{{ '/tabler/css/tabler-vendors.min.css' }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{mix("plugins/Core/css/core.css")}}">
 {{--    <link href="{{ file_hash("css/diy.css") }}" rel="stylesheet" />--}}
     <script>
-        var csrf_token = "{{ csrf_token() }}";
-        var ws_url = "{{ws_url()}}";
-        var login_token = "{{auth()->token()}}";
+        const csrf_token = "{{ csrf_token() }}";
+        var theme_status = @if(session()->has('theme')) {{"true"}} @else {{"false"}} @endif;
+       const captcha_config = {
+            cloudflare: "{{get_options("admin_captcha_cloudflare_turnstile_website_key","1x00000000000000000000AA")}}",
+            recaptcha: "{{get_options("admin_captcha_recaptcha_website_key")}}",
+            service:"{{get_options("admin_captcha_service")}}"
+        }
+        const system_theme = "{{session()->get('theme',session()->get('auto_theme','light'))}}"
+        var auto_theme = "{{session()->get('auto_theme','light')}}";
     </script>
     @yield('css')
     @yield('headers')
 </head>
 
-<body  class="border-top-wide border-primary d-flex flex-column">
+<body data-bs-theme="{{session()->get('theme',session()->get('auto_theme','light'))}}" class="border-top-wide border-primary d-flex flex-column">
 <div class="page page-center">
     @include("App::layouts.errors")
     @include("App::layouts._msg")
@@ -77,13 +78,13 @@
                 </div>
             </div>
             <div class="col-lg d-none d-lg-block">
-                <img src="/plugins/Core/image/undraw_secure_login_pdn4.svg" height="300" class="d-block mx-auto" alt="">
+                <img src="{{get_options('sign_page_image','/plugins/Core/image/undraw_secure_login_pdn4.svg')}}" height="300" class="d-block mx-auto" alt="">
             </div>
         </div>
     </div>
 </div>
 
-<script src='/js/jquery-3.6.0.min.js'></script>
+<script src='/js/jquery-3.7.1.min.js'></script>
 <script src="{{ mix('js/vue.js') }}"></script>
 <script src="{{ '/tabler/js/tabler.min.js' }}"></script>
 <script src="{{ mix('plugins/Core/js/app.js') }}"></script>
@@ -103,4 +104,11 @@
     var redirect_url = "{{request()->input('redirect','/')}}"
 </script>
 <script src="{{ mix('plugins/Core/js/sign.js') }}"></script>
+@if(get_options("admin_captcha_service","cloudflare")==="google")
+    <script src="//www.recaptcha.net/recaptcha/api.js?onload=onloadGoogleRecaptchaCallback" async
+            defer></script>
+@else
+    <script src="//challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" async
+            defer></script>
+@endif
 </body>

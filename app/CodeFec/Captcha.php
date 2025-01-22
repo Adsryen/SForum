@@ -10,44 +10,42 @@ declare(strict_types=1);
  */
 namespace App\CodeFec;
 
-use Hyperf\HttpServer\Annotation\Controller;
-use Hyperf\HttpServer\Annotation\GetMapping;
-use Hyperf\RateLimit\Annotation\RateLimit;
-use Hyperf\Utils\ApplicationContext;
-use Inkedus\Captcha\CaptchaFactory;
-
-#[Controller]
 class Captcha
 {
-    // 获取验证码
-    public function get()
-    {
-        return '/captcha';
-    }
-
-    #[GetMapping(path: '/captcha')]
-    #[RateLimit(create: 1, capacity: 1, consume: 1)]
-    public function build()
-    {
-        $captchaFactory = ApplicationContext::getContainer()->get(CaptchaFactory::class);
-        $captcha = $captchaFactory->make('default',true);
-        $image = $captcha['img'];
-        session()->set('captcha', $captcha['key']);
-        $image = base64_decode(explode('base64,', $image)[1]);
-        return response()->raw($image)->withHeader('Content-Type', 'image/png');
-    }
-
-    public function inline(): string
-    {
-        $captchaFactory = ApplicationContext::getContainer()->get(CaptchaFactory::class);
-        $captcha = $captchaFactory->make('default',true);
-        session()->set('captcha', $captcha['key']);
-        return $captcha['img'];
-    }
-
     public function check($captcha): bool
     {
-        $captchaFactory = ApplicationContext::getContainer()->get(CaptchaFactory::class);
-        return $captchaFactory->validate($captcha, session()->get('captcha'));
+        return match (get_options('admin_captcha_service', 'cloudflare')) {
+            'cloudflare' => $this->checkCloudflare($captcha),
+            'google' => $this->checkGoogle($captcha),
+        };
     }
+
+    private function checkCloudflare($captcha): bool
+    {
+        if (! get_options('admin_captcha_cloudflare_turnstile_website_key') || ! get_options('admin_captcha_cloudflare_turnstile_key')) {
+            return true;
+        }
+
+        $key = get_options('admin_captcha_cloudflare_turnstile_key');
+        $res = http()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+            'secret' => $key,
+            'response' => $captcha,
+            'remoteip' => get_client_ip(),
+        ]);
+        return $res['success'];
+    }
+
+    private function checkGoogle($captcha)
+    {
+        if (! get_options('admin_captcha_recaptcha_key')) {
+            return true;
+        }
+        $res = http()->post('https://www.recaptcha.net/recaptcha/api/siteverify', [
+            'secret' => get_options('admin_captcha_recaptcha_key'),
+            'response' => $captcha,
+            'remoteip' => get_client_ip(),
+        ]);
+        return $res['success'];
+    }
+
 }

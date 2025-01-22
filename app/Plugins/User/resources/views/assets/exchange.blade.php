@@ -29,17 +29,12 @@
                     @endforeach
                     <div class="mb-3">
                         <label for="" class="form-label">验证码</label>
-                        <div class="input-group">
-                            <input type="text" v-model="captcha" class="form-control" placeholder="captcha"
-                                   autocomplete="off" required>
-                            <span class="input-group-link">
-                        <img class="captcha" src="{{captcha()->inline()}}" alt=""
-                             onclick="this.src='/captcha?id='+Math.random()">
-                    </span>
-                        </div>
+                        <input iscaptchainput type="hidden" v-model="captcha" class="form-control" placeholder="captcha"
+                               autocomplete="off" required>
+                        <div id="captcha-container"></div>
                     </div>
 
-                    <button class="btn btn-primary">提交</button>
+                    <button isNeedCaptcha disabled class="btn btn-primary">提交</button>
                 </form>
             </div>
         </div>
@@ -78,4 +73,11 @@
     </script>
     <script src="{{mix("plugins/Core/js/user.js")}}"></script>
     <script src="{{mix('plugins/User/js/order.js')}}"></script>
+    @if(get_options("admin_captcha_service","cloudflare")==="google")
+        <script src="//www.recaptcha.net/recaptcha/api.js?onload=onloadGoogleRecaptchaCallback" async
+                defer></script>
+    @else
+        <script src="//challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" async
+                defer></script>
+    @endif
 @endsection

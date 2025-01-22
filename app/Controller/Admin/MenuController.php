@@ -26,26 +26,26 @@ use Symfony\Component\Finder\Finder;
 #[Middleware(AdminMiddleware::class)]
 class MenuController extends AbstractController
 {
-    #[GetMapping(path: '')]
+    #[GetMapping('')]
     public function index()
     {
         return view('admin.setting.menu.index', ['page' => $this->page()]);
     }
 
-    #[GetMapping(path: 'create')]
+    #[GetMapping('create')]
     public function create()
     {
         return view('admin.setting.menu.create');
     }
 
-    #[GetMapping(path: 'import')]
+    #[GetMapping('import')]
     public function import()
     {
         $page = $this->backup_page();
         return view('admin.setting.menu.import', ['page' => $page]);
     }
 
-    #[PostMapping(path: 'import')]
+    #[PostMapping('import')]
     public function _import()
     {
         _menu_instance()->backup('before-import-' . date('Y-m-d-H:i:s'));
@@ -62,7 +62,7 @@ class MenuController extends AbstractController
      * 恢复备份.
      * @return array|\Psr\Http\Message\ResponseInterface
      */
-    #[PostMapping(path: 'recover')]
+    #[PostMapping('recover')]
     public function _recover()
     {
         _menu_instance()->backup('before-recover-' . date('Y-m-d-H:i:s'));
@@ -75,7 +75,7 @@ class MenuController extends AbstractController
         return Json_Api(200, true, ['msg' => '恢复成功!']);
     }
 
-    #[PostMapping(path: 'import.delete.file')]
+    #[PostMapping('import.delete.file')]
     public function _import_remove_file()
     {
         $path = request()->input('path');
@@ -86,7 +86,7 @@ class MenuController extends AbstractController
         return Json_Api(200, true, ['msg' => '删除成功!']);
     }
 
-    #[GetMapping(path: '{id}/edit')]
+    #[GetMapping('{id}/edit')]
     public function edit($id)
     {
         if (! in_array($id, _menu_keys())) {
@@ -99,7 +99,7 @@ class MenuController extends AbstractController
         return view('admin.setting.menu.edit', ['data' => $data]);
     }
 
-    #[PostMapping(path: 'create')]
+    #[PostMapping('create')]
     public function store()
     {
         $data = $this->request->input('data');
@@ -116,12 +116,12 @@ class MenuController extends AbstractController
         if (arr_has($data, 'parent_id') && data_get($data, 'parent_id') && arr_has(_menu_get_data($data['parent_id']), 'parent_id')) {
             return Json_Api(403, false, ['msg' => '子菜单不能作为上级菜单使用']);
         }
-        $prefix_name = config('cache.default.prefix') . 'menu';
+        $prefix_name = config('cache.default.prefix') . 'menus';
         redis()->hSetNx($prefix_name, (string) ((int) max(_menu_keys()) + 1), _menu_instance()->serialize($data));
         return Json_Api(200, true, ['msg' => '创建成功!']);
     }
 
-    #[PostMapping(path: 'update')]
+    #[PostMapping('update')]
     public function update()
     {
         $data = $this->request->input('data');
@@ -147,13 +147,13 @@ class MenuController extends AbstractController
         } else {
             unset($data['parent_id']);
         }
-        $prefix_name = config('cache.default.prefix') . 'menu';
+        $prefix_name = config('cache.default.prefix') . 'menus';
         redis()->hDel($prefix_name, (string) $this->request->input('id'));
         redis()->hSetNx($prefix_name, (string) $this->request->input('id'), _menu_instance()->serialize($data));
         return Json_Api(200, true, ['msg' => '修改成功!']);
     }
 
-    #[PostMapping(path: 'delete')]
+    #[PostMapping('delete')]
     public function delete()
     {
         $id = $this->request->input('id');
@@ -163,7 +163,7 @@ class MenuController extends AbstractController
         if (arr_has(Itf()->get('menu'), $id)) {
             return Json_Api(403, false, ['msg' => '这是不可删除的菜单']);
         }
-        $prefix_name = config('cache.default.prefix') . 'menu';
+        $prefix_name = config('cache.default.prefix') . 'menus';
         redis()->hDel($prefix_name, (string) $this->request->input('id'));
         return Json_Api(200, true, ['msg' => '删除成功!']);
     }

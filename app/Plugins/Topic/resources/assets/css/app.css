@@ -20,11 +20,6 @@
   width: 100%;
   height: 100%;
 }
-pre {
-  padding: 0;
-  border: 0;
-  font-size: 16px;
-}
 .article p {
   word-wrap: break-word;
   word-break: normal;
@@ -153,20 +148,11 @@ pre {
   background-color: #f6f8fa;
   text-align: center;
 }
-.article blockquote {
-  font-size: 15px;
-  border: 0;
-  background: var(--tblr-code-bg);
-  border-radius: 4px;
-  padding: 8px 15px;
-  border-top: 2px dotted #fff;
-  border-bottom: 2px dotted #fff;
-  margin: 1em 0;
-}
-.article .quote blockquote {
-  margin-top: 1px;
-  padding-bottom: 5px;
-  background: #F9F9F9 none no-repeat 20px 6px;
+pre {
+  overflow-x: auto;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  padding-bottom: 2px;
 }
 .shortcode-content-hidden {
   font-size: 17px;
@@ -214,5 +200,90 @@ pre {
 .comment-optimal:focus,
 .comment-optimal:active {
   transform: translateY(-8px);
+}
+.article:not(pre) :root {
+  --bg-color: #ffffff;
+  /* 定义背景颜色变量 */
+  --border-color: #eceeef;
+  /* 定义边框颜色变量 */
+  --text-color: #454545;
+  /* 定义文本颜色变量 */
+  --highlight-bg-color: #f9f9f9;
+  /* 定义行高亮背景颜色变量 */
+}
+.article:not(pre) table {
+  width: 100%;
+  background-color: var(--bg-color);
+  border-collapse: collapse;
+}
+.article:not(pre) table th,
+.article:not(pre) table td {
+  padding: 0.5rem;
+  vertical-align: middle;
+  border-top: 1px solid var(--border-color);
+}
+.article:not(pre) table thead th {
+  vertical-align: middle;
+  border-bottom: 2px solid var(--border-color);
+}
+.article:not(pre) table tbody + tbody {
+  border-top: 2px solid var(--border-color);
+}
+.article:not(pre) table .table-bordered,
+.article:not(pre) table .table-bordered th,
+.article:not(pre) table .table-bordered td {
+  border: 1px solid var(--border-color);
+}
+.article:not(pre) table .table-bordered th,
+.article:not(pre) table .table-bordered td {
+  border-width: 0 1px 1px 0;
+}
+.article:not(pre) table .table-bordered th:last-child,
+.article:not(pre) table .table-bordered td:last-child {
+  border-right-width: 1px;
+}
+.article:not(pre) table .table-bordered th:first-child,
+.article:not(pre) table .table-bordered td:first-child {
+  border-left-width: 1px;
+}
+.article:not(pre) table tbody tr:nth-child(even) {
+  background-color: var(--highlight-bg-color);
+}
+.article:not(pre) table tbody tr:hover {
+  background-color: #f2f2f2;
+}
+/* 夜间模式样式 */
+[data-theme="theme-dark"] .article:not(pre) {
+  --bg-color: #292d31;
+  /* 修改背景颜色变量 */
+  --border-color: #464e5f;
+  /* 修改边框颜色变量 */
+  --text-color: #b2b2b2;
+  /* 修改文本颜色变量 */
+  --highlight-bg-color: #3b3f45;
+  /* 修改行高亮背景颜色变量 */
+  background-color: transparent;
+  /* 去掉背景颜色 */
+}
+[data-theme="theme-dark"] .article:not(pre) table tbody tr:hover {
+  background-color: transparent;
+  /* 将 hover 颜色设为透明 */
+}
+.bilibili-iframe {
+  position: relative;
+  width: 100%;
+}
+.bilibili-iframe::before {
+  content: "";
+  display: block;
+  padding-top: 56.25%;
+  /* 设置为16:9的宽高比 */
+}
+.bilibili-iframe iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 

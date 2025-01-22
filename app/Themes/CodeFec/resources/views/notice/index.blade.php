@@ -22,8 +22,8 @@
                                             {{$value['name']}}
                                         </div>
                                         <div class="col-auto">
-                                            @php $msgCount = call_user_func( \Opis\Closure\unserialize((string)$value['count']) ,auth()->id()); @endphp
-                                            @if(is_callable( \Opis\Closure\unserialize((string)$value['count'])) && $msgCount>0)
+                                            @php $msgCount = call_user_func( _unserialize((string)$value['count']) ,auth()->id()); @endphp
+                                            @if(is_callable( _unserialize((string)$value['count'])) && $msgCount>0)
                                                 <span class="badge badge-sm badge-pill bg-red">{{$msgCount}}</span>
                                             @endif
                                             <svg xmlns="http://www.w3.org/2000/svg"
@@ -153,8 +153,10 @@
                                 </h2>
                             </div>
                             <div class="col-auto">
+                                <button user-click="notice_clear"
+                                        class="btn btn-primary">{{__("user.clean notice")}}</button>
                                 <button user-click="notice_allread"
-                                        class="btn btn-outline-dark">{{__("user.clean notice")}}</button>
+                                        class="btn btn-success">{{__("user.read all")}}</button>
                             </div>
 
                         </div>

@@ -40,17 +40,14 @@
         @if(get_options('core_user_reg_captcha','开启')==='开启')
             <div class="mb-3">
                 <label for="" class="form-label">验证码</label>
-                <div class="input-group">
-                    <input type="text" v-model="captcha" class="form-control" placeholder="captcha" autocomplete="off" required>
-                    <span class="input-group-link">
-                        <img class="captcha" src="{{captcha()->inline()}}" alt="" onclick="this.src='/captcha?id='+Math.random()">
-                    </span>
-                </div>
+                <input type="hidden" isCaptchaInput v-model="captcha" class="form-control" placeholder="captcha" autocomplete="off" required>
+                <div id="captcha-container"></div>
+
             </div>
         @endif
 
         <div class="form-footer">
-            <button type="submit" class="btn btn-primary w-100">立即注册</button>
+            <button type="submit" @if(get_options('core_user_reg_captcha','开启')==='开启') {{"isNeedCaptcha disabled"}} @endif class="btn btn-primary w-100">立即注册</button>
         </div>
     </form>
 </div>

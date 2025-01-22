@@ -10,7 +10,6 @@ declare(strict_types=1);
  */
 namespace App\Server;
 
-use App\CodeFec\CodeFec;
 use FastRoute\Dispatcher;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Contract\MiddlewareInitializerInterface;
@@ -26,7 +25,7 @@ use Hyperf\HttpServer\MiddlewareManager;
 use Hyperf\HttpServer\ResponseEmitter;
 use Hyperf\HttpServer\Router\Dispatched;
 use Hyperf\HttpServer\Router\DispatcherFactory;
-use Hyperf\Utils\Context;
+use Hyperf\Context\Context;
 use Hyperf\Utils\Coordinator\Constants;
 use Hyperf\Utils\Coordinator\CoordinatorManager;
 use Psr\Container\ContainerInterface;
@@ -78,7 +77,6 @@ class CodeFecServer implements OnRequestInterface, MiddlewareInitializerInterfac
         try {
             CoordinatorManager::until(Constants::WORKER_START)->yield();
 
-            (new CodeFec())->handle();
             [$psr7Request, $psr7Response] = $this->initRequestAndResponse($request, $response);
 
             $psr7Request = $this->coreMiddleware->dispatch($psr7Request);

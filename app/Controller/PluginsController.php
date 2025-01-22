@@ -17,8 +17,9 @@ use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\Middleware;
 use Hyperf\HttpServer\Annotation\PostMapping;
 use Hyperf\Paginator\LengthAwarePaginator;
+use Hyperf\Stringable\Str;
 use Hyperf\Utils\Collection;
-use Hyperf\Utils\Str;
+use Noodlehaus\Config;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -31,22 +32,21 @@ use Symfony\Component\Console\Output\NullOutput;
 #[Middleware(\App\Middleware\AdminMiddleware::class)]
 class PluginsController
 {
-    #[GetMapping(path: '')]
+    #[GetMapping('')]
     public function index(): ResponseInterface
     {
         return view('admin.plugins.index', ['page' => $this->page()]);
     }
 
     // 上传插件
-
-    #[GetMapping(path: 'upload')]
-    public function upload()
+    #[GetMapping('upload')]
+    public function upload(): ResponseInterface
     {
         return view('admin.plugins.upload');
     }
 
-    #[GetMapping(path: 'logo')]
-    public function logo()
+    #[GetMapping('logo')]
+    public function logo(): ResponseInterface
     {
         $plugin = request()->input('plugin');
         if (! file_exists(BASE_PATH . '/app/Plugins/' . $plugin . '/' . $plugin . '.png')) {
@@ -58,7 +58,7 @@ class PluginsController
 
     // 上传插件
 
-    #[PostMapping(path: 'upload')]
+    #[PostMapping('upload')]
     public function upload_submit(PluginUpload $request)
     {
         // 不带后缀的文件名
@@ -72,15 +72,19 @@ class PluginsController
         // 初始化压缩操作类
         $zippy = Zippy::load();
 
-        // 打开压缩文件
-        $archiveTar = $zippy->open(plugin_path($getClientFilename));
+        try {
+            // 打开压缩文件
+            $archiveTar = $zippy->open(plugin_path($getClientFilename));
 
-        // 解压
-        if (! is_dir(plugin_path($filename))) {
-            mkdir(plugin_path($filename), 0777);
+            // 解压
+            if (! is_dir(plugin_path($filename))) {
+                mkdir(plugin_path($filename), 0777);
+            }
+
+            $archiveTar->extract(plugin_path($filename));
+        } catch (\Exception $e) {
+            return redirect()->with('danger', '压缩包解压失败')->back()->go();
         }
-
-        $archiveTar->extract(plugin_path($filename));
 
         // 获取解压后,插件文件夹的所有目录
         $allDir = allDir(plugin_path($filename));
@@ -152,7 +156,7 @@ class PluginsController
             $input = new ArrayInput($params);
             $output = new NullOutput();
 
-            $container = \Hyperf\Utils\ApplicationContext::getContainer();
+            $container = \Hyperf\Context\ApplicationContext::getContainer();
 
             /** @var Application $application */
             $application = $container->get(\Hyperf\Contract\ApplicationInterface::class);
@@ -161,5 +165,60 @@ class PluginsController
             // 这种方式: 不会暴露出命令执行中的异常, 不会阻止程序返回
             $exitCode = $application->run($input, $output);
         }
+    }
+
+    private string $api_get_new_version_url = 'https://www.runpod.cn/api/v1/SFService/sforum/plugin/getNewVersion';
+
+    // 插件主页
+    private string $plugin_home_url = 'https://www.runpod.cn/sforum/addons/';
+    // 待更新的插件
+    #[GetMapping('newVersion')]
+    public function new_version(){
+        return view("admin.plugins.newVersion");
+    }
+
+    #[PostMapping('newVersion')]
+    public function new_version_api()
+    {
+        // 获取所有插件
+        $plugins = plugins()->get_all();
+        $result = [];
+        foreach ($plugins as $plugin) {
+            $config = Config::load(plugin_path($plugin . '/'.$plugin.'.json'));
+            $aid = $config->get('author')."/".$plugin;
+            $result[]=$aid;
+        }
+        // 请求插件中心api
+        try {
+            $res = http('array')->post($this->api_get_new_version_url,[
+                'plugins' => $result
+            ]);
+        }catch (\Exception $e){
+            return json_api(500,false,['msg' => '请求插件中心失败,请稍后再试!']);
+        }
+        if($res['success'] === false){
+            return json_api(500,false,['msg' => '请求插件中心失败,请稍后再试!']);
+        }
+        $data = $res['result'];
+        // 获取所有插件
+        $plugins = plugins()->get_all();
+        $result = [];
+        foreach ($plugins as $plugin) {
+            $config = Config::load(plugin_path($plugin . '/'.$plugin.'.json'));
+            $aid = $config->get('author')."/".$plugin;
+
+            if((string)$data[$aid] > $config->get('version')){
+                $result[]= [
+                    'name' => $plugin,
+                    'url' => $this->plugin_home_url.$aid,
+                    'download' => $this->plugin_home_url.$aid."/download",
+                    'aid' => $aid,
+                    'config' => $config->all(),
+                    'version' => $config->get('version'),
+                    'new_version' => $data[$aid]
+                ];
+            }
+        }
+        return json_api(200,true,$result);
     }
 }

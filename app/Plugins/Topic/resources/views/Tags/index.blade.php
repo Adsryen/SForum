@@ -1,8 +1,8 @@
 @extends("App::app")
 
 @section('title', __("app.tag"))
-@section('description', '本站帖子标签列表')
-@section('keywords', '本站帖子标签列表')
+@section('description', '本站板块列表')
+@section('keywords', '本站板块列表')
 
 @section('header')
     <div class="page-wrapper">
@@ -46,7 +46,7 @@
                         </div>
                         <div class="card-body">
                             <h3 class="card-title">{{$value->name}}</h3>
-                            <p>{{ \Hyperf\Utils\Str::limit(core_default($value->description, __("app.no description")), 32) }}</p>
+                            <p>{{ \Hyperf\Stringable\Str::limit(core_default($value->description, __("app.no description")), 32) }}</p>
                         </div>
                     </a>
                 </div>

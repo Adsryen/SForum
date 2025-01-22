@@ -1,5 +1,5 @@
 @if(auth()->check())
-    <div class="col-md-12">
+    <div class="col-md-12  @if(get_options('theme_home_widget_hidden_userdataCard')==='true'){{"d-none d-lg-block"}}@endif">
         <div class="card">
             <div class="card-cover card-cover-blurred text-center" style="background-image: url({{get_user_settings(auth()->id(),'backgroundImg','/plugins/Core/image/user_background.jpg')}})">
                 <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url({{super_avatar(auth()->data())}})"></span>
@@ -34,13 +34,13 @@
 @else
     <div class="col-md-12">
         <div class="card">
-            <div class="card-body">
+            <div class="card-header">
                 <h3 class="card-title">
                     {{get_options("web_name")}}
                 </h3>
-                <p>
-                    {{get_options("description",__("app.no description"))}}
-                </p>
+            </div>
+            <div class="card-body ">
+                {{get_options("description",__("app.no description"))}}
             </div>
             <div class="d-flex">
                 <a href="/register" class="card-btn">{{__("app.register")}}</a>

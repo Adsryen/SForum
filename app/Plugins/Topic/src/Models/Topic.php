@@ -13,9 +13,9 @@ namespace App\Plugins\Topic\src\Models;
 use App\Model\Model;
 use App\Plugins\Comment\src\Model\TopicComment;
 use App\Plugins\Core\src\Models\Post;
-use App\Plugins\Core\src\Models\PostsOption;
 use App\Plugins\User\src\Models\User;
 use Carbon\Carbon;
+use Hyperf\Database\Model\SoftDeletes;
 
 /**
  * @property int $id
@@ -33,29 +33,27 @@ use Carbon\Carbon;
  */
 class Topic extends Model
 {
+    use SoftDeletes;
+
     /**
      * The table associated with the model.
      *
-     * @var string
+     * @var ?string
      */
-    protected $table = 'topic';
+    protected ?string $table = 'topic';
 
     /**
      * The attributes that are mass assignable.
-     *
-     * @var array
      */
-    protected $fillable = ['id', 'created_at', 'updated_at', 'title', 'user_id', 'status', 'post_id', 'view', 'tag_id', 'options','topping', 'essence'];
+    protected array $fillable = ['id', 'created_at', 'updated_at', 'title', 'user_id', 'status', 'post_id', 'view', 'tag_id', 'options', 'topping', 'essence', 'last_time'];
 
     /**
      * The attributes that should be cast to native types.
-     *
-     * @var array
      */
-    protected $casts = ['id' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
+    protected array $casts = ['id' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 
     /**
-     * 帖子标签信息.
+     * 板块信息.
      */
     public function tag(): \Hyperf\Database\Model\Relations\BelongsTo
     {
@@ -101,5 +99,32 @@ class Topic extends Model
     public function post()
     {
         return $this->belongsTo(Post::class, 'post_id', 'id');
+    }
+
+    public function unlock(){
+        return $this->belongsTo(TopicUnlock::class,'topic_id','id');
+    }
+
+    /**
+     * 获取最后回复时间.
+     * @param $value
+     * @return float|int|string
+     */
+    public function getLastTimeAttribute($value): float | int | string
+    {
+        return $value && $value > 0 ? Carbon::createFromTimestamp($value)->format('Y-m-d H:i:s') : Carbon::parse($this->updated_at)->timestamp;
+    }
+
+    // 处理获取标题
+    public function getTitleAttribute($value): string
+    {
+        if (@! $this->user->class_id) {
+            return $value;
+        }
+        $class_id = $this->user->class_id;
+        if ((int) get_options('user_black_group_id') === (int) $class_id) {
+            return get_options('user_ban_re_topic_title', '此用户已被封禁,帖子禁止查看');
+        }
+        return $value;
     }
 }

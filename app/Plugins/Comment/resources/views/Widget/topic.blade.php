@@ -1,4 +1,4 @@
-<div class="col-md-12">
+<div class="col-md-12" id="comment">
     <div class="border-0 card">
         <div class="card-header">
             <div class="card-title">评论</div>
@@ -37,39 +37,39 @@
 
 
                 <div class="mb-1" x-data="comment">
-                    <form action="/topic/create/comment/{{$data->id}}" method="post">
+                    <form id="topic-create-comment-form" action="/topic/create/comment/{{$data->id}}" method="post">
                         <div class="row">
-                            <div class="col-md-12 mb-3">
-                                <x-csrf/>
-                                <input type="hidden" name="topic_id" value="{{$data->id}}">
-                                <textarea x-model="content" id="create-comment-textarea" name="content" placeholder="说点什么..." class="form-control OwO-textarea" data-bs-toggle="autosize" required>{{request()->input('content')}}</textarea>
-
-                            </div>
-                            <div class="col-12">
-                                <div class="row">
-                                    <div class="col-auto"> <button class="btn btn-primary">评论</button></div>
-                                    <div class="col align-self-center">
-                                        @if(get_options('comment_emoji_close')!=='true')
-                                            <link rel="stylesheet" href="{{file_hash('css/OwO.min.css')}}">
-                                            <div class="OwO" id="create-comment-owo">[OωO表情]</div>
-                                            <script src="{{file_hash('js/OwO.min.js')}}"></script>
-                                            <script>
-                                                var OwO_demo = new OwO({
-                                                    logo: '[OωO表情]',
-                                                    container: document.getElementById('create-comment-owo'),
-                                                    target: document.getElementById('create-comment-textarea'),
-                                                    api: '/api/core/OwO.json',
-                                                    width: '300px',
-                                                    maxHeight: '250px',
-                                                });
-                                            </script>
-                                        @endif
-                                    </div>
-                                    <div class="col-auto align-self-center">
-                                        <a class="text-muted" href="/topic/create/comment/{{$data->id}}">[高级回复]</a>
+{{--                            锁帖--}}
+                            @if($data->status==="lock")
+                                <!-- 锁帖 -->
+                                <div class="col-md-12 mb-3">
+                                    <textarea disabled class="form-control" data-bs-toggle="autosize" required>主题已经关闭</textarea>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row">
+                                        <div class="col-auto"> <button class="btn btn-primary disabled" disabled>评论</button></div>
                                     </div>
                                 </div>
-                            </div>
+                            @else
+                                <div class="col-md-12 mb-3">
+                                    <x-csrf/>
+                                    <input type="hidden" id="create-comment-textarea-hidden" name="originalContent" value="1">
+                                    <textarea x-model="content" id="create-comment-textarea" name="content" placeholder="说点什么..." class="form-control OwO-textarea" data-bs-toggle="autosize" required>{{request()->input('content')}}</textarea>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row">
+                                        <div class="col-auto"> <button class="btn btn-primary">评论</button></div>
+                                        <div class="col align-self-center">
+                                            @if(get_options('comment_emoji_close')!=='true')
+                                                <div class="OwO" id="create-comment-owo">[OωO表情]</div>
+                                            @endif
+                                        </div>
+                                        <div class="col-auto align-self-center">
+                                            <a class="text-muted" href="/topic/create/comment/{{$data->id}}">[高级回复]</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </form>
                 </div>

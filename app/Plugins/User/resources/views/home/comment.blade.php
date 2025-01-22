@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="{{ mix('plugins/Topic/css/app.css') }}">
 <div class="row row-cards">
 
-    @php($topics = \App\Plugins\Comment\src\Model\TopicComment::query()->where(['user_id' => $user->id,'status' => 'publish'])->orderByDesc('id')->paginate(15))
+    @php($topics = \App\Plugins\Comment\src\Model\TopicComment::query()->where(['user_id' => $user->id,])->orderByDesc('id')->paginate(15))
     <div class="col-md-12">
         <div class="border-0 card card-body">
             <h3 class="card-title">{{$user->username}} 发布的评论</h3>
@@ -31,7 +31,7 @@
                                                         </div>
                                                         {{--                                            楼层信息--}}
                                                         <div class="col-auto">
-                                                            <a class="badge badge-pill bg-teal" href="/{{$value->topic_id}}.html">访问所在帖子</a>
+                                                            <a class="badge badge-pill bg-teal" href="{{get_topic_comment_url($value->id)}}">查看评论</a>
                                                         </div>
 
                                                     </div>
@@ -48,7 +48,7 @@
                                                                     <span style="color:#999999" >{{$value->parent->user->username}} {{__("app.Published on")}} {{format_date($value->created_at)}}</span>
                                                                 </a>
                                                                 <br>
-                                                                {!! \Hyperf\Utils\Str::limit(remove_bbCode(strip_tags($value->parent->post->content)),60) !!}
+                                                                {!! \Hyperf\Stringable\Str::limit(remove_bbCode(strip_tags($value->parent->post->content)),60) !!}
                                                             </blockquote>
                                                         </div>
                                                     @endif
@@ -58,33 +58,6 @@
 {{--                                                <div class="col-md-12">--}}
 {{--                                                    <div class="hr-text" style="margin-bottom:5px;margin-top:15px">{{__("topic.comment.operate")}}</div>--}}
 {{--                                                </div>--}}
-                                                <div class="col-md-12">
-                                                    {{--                                            点赞--}}
-                                                    <a style="text-decoration:none;" comment-click="comment-like-topic" comment-id="{{ $value->id }}"
-                                                       class="cursor-pointer text-muted hvr-icon-bounce" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{__("topic.likes")}}">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon hvr-icon" width="24" height="24"
-                                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                                                             stroke-linejoin="round">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" />
-                                                        </svg>
-                                                        <span comment-show="comment-topic-likes">{{ $value->likes->count() }}</span>
-                                                    </a>
-
-                                                    {{--                                        收藏--}}
-                                                    @if(auth()->check())
-
-                                                        <a style="text-decoration:none;" topic-id="{{$value->topic_id}}" comment-click="star-comment" comment-id="{{ $value->id }}"
-                                                           class="cursor-pointer text-muted hvr-icon-up" data-bs-toggle="tooltip" data-bs-placement="bottom" title="收藏">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="hvr-icon icon icon-tabler icon-tabler-star" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                                <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
-                                                            </svg>
-                                                            收藏
-                                                        </a>
-
-                                                    @endif
-                                                </div>
 
                                             </div>
                                         </div>

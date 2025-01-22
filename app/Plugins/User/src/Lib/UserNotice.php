@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * This file is part of zhuchunshu.
  * @link     https://github.com/zhuchunshu
@@ -13,12 +13,12 @@ namespace App\Plugins\User\src\Lib;
 use App\Plugins\User\src\Event\SendMail;
 use App\Plugins\User\src\Models\User;
 use App\Plugins\User\src\Models\UsersNotice;
-use Hyperf\Utils\Str;
-
+use Hyperf\Stringable\Str;
+use Psr\Http\Message\ResponseInterface;
 class UserNotice
 {
     // 检查用户是否愿意接受通知
-    public function check($user_id)
+    public function check($user_id) : bool
     {
         $user_noticed = (string) get_user_settings($user_id, 'noticed', '0');
         if (get_options('user_email_noticed_on') === 'true' && $user_noticed === '1') {
@@ -29,79 +29,58 @@ class UserNotice
         }
         return false;
     }
-
     /**
      * 发送通知.
      * @param mixed $user_id
      * @param mixed $title
      * @param mixed $content
      * @param null|mixed $action
-     * @param mixed $contentLength
      */
-    public function send($user_id, $title, $content, $action = null, $contentLength = 197): void
+    public function send($user_id, $title, $content, $action = null, bool $sendMail = true, ?string $sort = null) : void
     {
         if (UsersNotice::query()->where(['user_id' => $user_id, 'content' => $content])->exists()) {
-            UsersNotice::query()->where(['user_id' => $user_id, 'content' => $content])->take(1)->update([
-                'status' => 'publish',
-                'created_at' => date('Y-m-d H:i:s'),
-            ]);
+            UsersNotice::query()->where(['user_id' => $user_id, 'content' => $content])->take(1)->update(['status' => 'publish', 'created_at' => date('Y-m-d H:i:s'), 'sort' => $sort]);
         } else {
-            UsersNotice::query()->create([
-                'user_id' => $user_id,
-                'title' => $title,
-                'content' => $content,
-                'action' => $action,
-                'status' => 'publish',
-            ]);
+            UsersNotice::query()->create(['user_id' => $user_id, 'title' => $title, 'content' => $content, 'action' => $action, 'sort' => $sort, 'status' => 'publish']);
+            if ($sendMail === true) {
+                $this->sendMail($user_id, $title, $action, $content);
+            }
         }
-
-        $this->sendMail($user_id, $title, $action, $content, $contentLength);
     }
-
     /**
      * 给多个用户发送通知.
      * @param mixed $title
      * @param mixed $content
      * @param null|mixed $action
-     * @param mixed $contentLength
      */
-    public function sends(array $user_ids, $title, $content, $action = null, $contentLength = 197): void
+    public function sends(array $user_ids, $title, $content, $action = null, bool $sendMail = true, ?string $sort = null) : void
     {
         foreach ($user_ids as $user_id) {
             if (UsersNotice::query()->where(['user_id' => $user_id, 'content' => $content])->exists()) {
-                UsersNotice::query()->where(['user_id' => $user_id, 'content' => $content])->take(1)->update([
-                    'status' => 'publish',
-                    'created_at' => date('Y-m-d H:i:s'),
-                ]);
+                UsersNotice::query()->where(['user_id' => $user_id, 'content' => $content])->take(1)->update(['status' => 'publish', 'created_at' => date('Y-m-d H:i:s'), 'sort' => $sort]);
             } else {
-                UsersNotice::query()->create([
-                    'user_id' => $user_id,
-                    'title' => $title,
-                    'content' => $content,
-                    'action' => $action,
-                    'status' => 'publish',
-                ]);
+                UsersNotice::query()->create(['user_id' => $user_id, 'title' => $title, 'content' => $content, 'action' => $action, 'sort' => $sort, 'status' => 'publish']);
+                if ($sendMail === true) {
+                    $this->sendMail($user_id, $title, $action, $content);
+                }
             }
-            $this->sendMail($user_id, $title, $action, $content, $contentLength);
         }
     }
-
     /**
      * 发送邮件通知.
      * @param mixed $user_id
      * @param mixed $title
      * @param mixed $action
      * @param null|mixed $content
-     * @param mixed $contentLength
      */
-    private function sendMail($user_id, $title, $action = null, $content = null, $contentLength = 197): void
+    private function sendMail($user_id, $title, $action = null, $content = null) : void
     {
         // 获取收件人邮箱
         $email = User::query()->where('id', $user_id)->first()->email;
         // 执行发送
-        $Subject = '【' . get_options('web_name') . '】 你有一条新通知!';
+        $Subject = '【' . get_options('web_name') . '】' . $title;
         // 获取发信内容
-        $Body = $this->get_mail_content($title, $content, $action, $contentLength);
+        $Body = $this->get_mail_content($title, $content, $action);
         // 判断用户是否愿意接收邮件通知
         // 检查用户是否愿意接受通知
         if ($this->check($user_id)) {
@@ -111,25 +90,36 @@ class UserNotice
             EventDispatcher()->dispatch(new SendMail($user_id, $title, $action));
         }
     }
-
     // 获取发信内容
-    private function get_mail_content($title, $content = null, $action = null, $contentLength = 197): string
+    private function get_mail_content($title, $content = null, $action = null) : string
     {
-        $url = url($action);
+        if ($content instanceof ResponseInterface) {
+            $content = $content->getBody()->getContents();
+        }
+        $allowed_tags = '<p><a><div><img>';
+        $content = strip_tags($content, $allowed_tags);
+        if (!$action) {
+            $action = url();
+        }
+        if (!Str::is('http*', $action)) {
+            $url = url($action);
+        } else {
+            $url = $action;
+        }
+        $url_html = <<<HTML
+                <br>
+查看链接：<a href="{$url}" target="_blank">{$url}</a>
+HTML;
         // 执行发送
         if ($content) {
-            $content = Str::limit((string) $content, $contentLength);
             $Body = <<<HTML
-<h3>主题: {$title}</h3>
-<hr>
 {$content}
-<hr>
-<p>链接: <a href="{$url}">{$url}</a></p>
+
+<p>{$url_html}</p>
 HTML;
         } else {
             $Body = <<<HTML
-<h3>主题: {$title}</h3>
-<p>链接: <a href="{$url}">{$url}</a></p>
+<p>{$url_html}</p>
 HTML;
         }
         return $Body;

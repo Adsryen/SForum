@@ -1,7 +1,6 @@
 version: '3'
 services:
   web:
-    #zhuchunshu/sforum:v2 or ghcr.io/zhuchunshu/sforum:v2
     build: .
     ports:
       - "9501:9501"
@@ -17,14 +16,20 @@ services:
       - db
       - redis
     networks:
-      - sftest
+      - sf
+    volumes:
+      - sforum:/data
     restart: always
 
   redis:
     image: redis:7.0
     restart: always
     networks:
-      - sftest
+      - sf
+    volumes:
+      - redis:/data
+      - redis:/usr/local/etc/redis/redis.conf
+      - redis:/logs
 
   db:
     image: mariadb:10.5.18
@@ -35,8 +40,29 @@ services:
       MARIADB_USER: sforum
       MARIADB_PASSWORD: sforum
     networks:
-      - sftest
+      - sf
+    volumes:
+      - db:/var/lib/
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "9588:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_ARBITRARY=1
+    networks:
+      - sf
 
 networks:
-  sftest:
+  sf:
     external: false
+
+volumes:
+  sforum:
+    driver: local
+  db:
+    driver: local
+  redis:
+    driver: local
+

@@ -24,7 +24,7 @@
                                     <div class="col text-truncate">
                                         <a href="/users/pm/{{$contact->id}}"
                                            class="text-body d-block">{{$contact->username}}</a>
-                                        <div class="text-muted text-truncate mt-n1">@if($contact->options->qianming!=='no bio')
+                                        <div class="text-muted text-truncate mt-n1">@if($contact->options->qianming && $contact->options->qianming!=='no bio')
                                                 {{$contact->options->qianming}}
                                             @else
                                                 {{__("user.no bio")}}
@@ -174,6 +174,7 @@
 
 @section('scripts')
     <script>var pm_socket = "{{ws_url('/User/Pm')}}?login-token={{auth()->token()}}&to={{$user->id}}";
+        var msgExists = "{{$msgExists}}"
         var to_id = {{$user->id}};
         var from_user = @json(['username' => auth()->data()->username,'avatar' =>super_avatar(auth()->data())]);
         var to_user = @json(['username' => $user->username,'avatar' =>super_avatar($user)]);

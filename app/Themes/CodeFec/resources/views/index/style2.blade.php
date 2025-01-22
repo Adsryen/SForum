@@ -1,4 +1,4 @@
-<article class="col-md-12 p-3 pt-2 pb-2 border-bottom">
+<article class="col-md-12 p-3 pt-2 pb-2 @if($page->hasPages()) border-bottom @endif">
     <div class="d-flex border-0 card">
         <div class="row">
             <div class="col-auto align-self-center">
@@ -7,50 +7,72 @@
                 </a>
 
             </div>
-            <div class="col" style="margin-left: -8px">
+            <div class="col">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="row">
                             <div class="col-md-12 markdown home-article">
-                                <a href="/{{$data->id}}.html" class="text-reset">
-                                    <h3 class="text-muted">
-                                        @if($data->topping>0)
-                                            <span class="badge bg-red">
+                                <h3 class="text-muted @if(get_options('theme_home_title_truncate')==="true"){{"text-truncate"}}@endif">
+                                    @if($data->topping>0)
+                                        <span class="badge bg-red">
                                                     {{__('app.top')}}
                                                 </span>
-                                        @else
-                                            <span class="badge d-none d-lg-inline-block"
-                                                  style="background-color: {{$data->tag->color}}!important;">
+                                    @else
+                                        <span class="badge d-none d-lg-inline-block"
+                                              style="background-color: {{$data->tag->color}}!important;">
                                                         {{$data->tag->name}}
                                                     </span>
+                                        @if(get_options('theme_home_tag_icon')==='true')
                                             <span class="badge d-inline-block d-lg-none"
                                                   style="background-color: {{$data->tag->color}}!important;">
                                                         {!! $data->tag->icon !!}
                                                     </span>
                                         @endif
-                                        @if($data->essence>0)
-                                            <span class="badge bg-green d-none d-lg-inline-block">
+
+                                    @endif
+                                    @if($data->essence>0)
+                                        <span class="badge bg-green d-none d-lg-inline-block">
                                                         {{__("app.essence")}}
                                                     </span>
-                                        @endif
+                                    @endif
 
-                                        {{$data->title}}</h3>
-                                </a>
+                                    <a href="/{{$data->id}}.html" class="text-reset">
+                                        {{$data->title}}
+                                    </a>
+                                    @if($data->status==="lock")
+                                        <div data-bs-toggle="tooltip" data-bs-placement="top" title="帖子已锁定"
+                                             style="display: inline-block" class="text-reset bg-transparent">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 style="margin-bottom: 3px"
+                                                 class="icon icon-tabler icon-tabler-lock" width="20" height="20"
+                                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                 fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M5 11m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"></path>
+                                                <path d="M12 16m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                                <path d="M8 11v-4a4 4 0 0 1 8 0v4"></path>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </h3>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-12">
                         <div class="d-flex align-items-center">
-                            <div class="text-muted" style="margin-top:1px">
-                                {!! u_username($data->user,['class' => ['text-muted']]) !!} {{format_date($data->created_at)}}
+                            <div class="text-muted-sm" style="margin-top:5px">
+                                {!! u_username($data->user,['class' => ['text-muted-sm']]) !!} {{format_date($data->created_at)}}
 
                                 @if($data->comments->count())
                                     ←
-                                    @if($data->updated_at>$data->comments->last()->created_at)
-                                        {!! u_username($data->user,['class' => ['text-muted']]) !!} {{format_date($data->updated_at)}}
-                                    @else
-                                        {!! u_username($data->comments->last()->user,['class' => ['text-muted']]) !!}  {{format_date($data->comments->last()->created_at)}}
-                                    @endif
+                                    {{--                                最后回复--}}
+                                    {!! u_username($data->comments->last()->user,['class' => ['text-muted-sm']]) !!}  {{format_date($data->comments->last()->created_at)}}
+
+                                    {{--                                    @if($data->updated_at>$data->comments->last()->created_at)--}}
+                                    {{--                                        {!! u_username($data->user,['class' => ['text-muted-sm']]) !!} {{format_date($data->updated_at)}}--}}
+                                    {{--                                    @else--}}
+                                    {{--                                        {!! u_username($data->comments->last()->user,['class' => ['text-muted-sm']]) !!}  {{format_date($data->comments->last()->created_at)}}--}}
+                                    {{--                                    @endif--}}
 
                                 @endif
                             </div>

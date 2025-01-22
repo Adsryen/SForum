@@ -11,7 +11,7 @@ declare(strict_types=1);
  */
 namespace App\CodeFec\Header;
 
-use Illuminate\Support\Arr;
+use Hyperf\Collection\Arr;
 
 class Header implements HeaderInterface
 {
@@ -37,7 +37,7 @@ class Header implements HeaderInterface
             'type' => $type,
             'view' => $view,
         ];
-        $this->list = Arr::add($this->list, $id, $arr);
+        $this->list = Arr::set($this->list, $id, $arr);
         return true;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 namespace App\CodeFec\Itf\Setting;
 
-use Illuminate\Support\Arr;
+use Hyperf\Collection\Arr;
 
 class Setting implements SettingInterface {
 
@@ -22,7 +22,7 @@ class Setting implements SettingInterface {
             'ename' => $ename,
             'view' => $view
         ];
-        $this->list = Arr::add($this->list, $id, $arr);
+        $this->list = Arr::set($this->list, $id, $arr);
 
         return true;
     }

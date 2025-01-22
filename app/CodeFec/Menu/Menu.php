@@ -11,7 +11,7 @@ declare(strict_types=1);
  */
 namespace App\CodeFec\Menu;
 
-use Illuminate\Support\Arr;
+use Hyperf\Collection\Arr;
 
 class Menu implements MenuInterface
 {
@@ -28,7 +28,7 @@ class Menu implements MenuInterface
 
     public function add(int $id, array $arr): bool
     {
-        $this->list = Arr::add($this->list, $id, $arr);
+        $this->list = Arr::set($this->list, $id, $arr);
         return true;
     }
 	

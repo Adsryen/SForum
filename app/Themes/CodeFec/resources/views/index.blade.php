@@ -1,4 +1,4 @@
-@extends("App::app")
+@extends("App::layouts.index-app")
 
 @if($title)
     @section('title',$title." - ")
@@ -23,9 +23,9 @@
                     @endforeach
                     @include('App::index.index')
                 </div>
-                <div class="col-lg-3">
-                    <div class="row row-cards rd">
-                        <div class="col-md-12 sticky" style="top: 105px">
+                <div class="col-lg-3 @if(get_options('theme_home_widget_hidden')==="true"){{"d-none d-lg-block"}}@endif">
+                    <div class="row row-cards @if(get_options('theme_right_tool_sticky')!=='true'){{"rd"}}@endif">
+                        <div class="col-md-12 @if(get_options('theme_right_tool_sticky')!=='true'){{"sticky"}}@endif" style="top: 105px">
                             @include('App::index.right')
                         </div>
                     </div>
@@ -42,6 +42,6 @@
     <link rel="stylesheet" href="{{ mix('plugins/Topic/css/app.css') }}">
 @endsection
 @section('scripts')
-    <script src="/tabler/libs/apexcharts/dist/apexcharts.min.js"></script>
+{{--    <script src="/tabler/libs/apexcharts/dist/apexcharts.min.js"></script>--}}
     <script src="{{mix('plugins/Topic/js/core.js')}}"></script>
 @endsection

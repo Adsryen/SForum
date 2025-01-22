@@ -25,7 +25,7 @@ class UserController
     /**
      * 用户列表.
      */
-    #[GetMapping(path: '/users')]
+    #[GetMapping('/users')]
     public function list()
     {
         if (auth()->check()) {
@@ -33,7 +33,7 @@ class UserController
             $page = User::query()->paginate(20);
             return view('User::list', ['page' => $page, 'count' => $count]);
         }
-        return admin_abort('登陆后可见',401,'/login');
+        return admin_abort('登陆后可见', 401, '/login');
     }
 
     /**
@@ -41,7 +41,7 @@ class UserController
      * @param $username
      * @return ResponseInterface
      */
-    #[GetMapping(path: '/users/{id}.html')]
+    #[GetMapping('/users/{id}.html')]
     public function data($id)
     {
         if (! User::query()->where('id', $id)->count()) {
@@ -56,7 +56,7 @@ class UserController
      * @param $username
      * @return ResponseInterface
      */
-    #[GetMapping(path: '/users/{username}.username')]
+    #[GetMapping('/users/{username}.username')]
     public function username($username)
     {
         $username = urldecode($username);
@@ -67,7 +67,7 @@ class UserController
         return redirect()->url('/users/' . $user->id . '.html')->go();
     }
 
-    #[GetMapping(path: '/users/group/{id}.html')]
+    #[GetMapping('/users/group/{id}.html')]
     public function group_data($id): ResponseInterface
     {
         if (! UserClassModel::query()->where('id', $id)->count()) {
@@ -81,7 +81,7 @@ class UserController
 
     // 用户帖子
 
-    #[GetMapping(path: '/users/topic/{username}.html')]
+    #[GetMapping('/users/topic/{username}.html')]
     public function topic($username)
     {
         $username = urldecode($username);
@@ -89,15 +89,13 @@ class UserController
             return admin_abort('用户名为:' . $username . '的用户不存在');
         }
         $user = User::query()->where('username', $username)->first();
-        $page = Topic::query()->where(['status' => 'publish', 'user_id' => $user->id])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $page = Topic::query()->where(['user_id' => $user->id])->orderBy('created_at', 'desc')->paginate(15);
         return view('User::topic', ['page' => $page, 'user' => $user]);
     }
 
     // 用户粉丝
 
-    #[GetMapping(path: '/users/fans/{username}.html')]
+    #[GetMapping('/users/fans/{username}.html')]
     public function fans($username)
     {
         $username = urldecode($username);
@@ -105,16 +103,13 @@ class UserController
             return admin_abort('用户名为:' . $username . '的用户不存在');
         }
         $user = User::query()->where('username', $username)->first();
-        $page = UserFans::query()
-            ->where('user_id', $user->id)
-            ->with('fans')
-            ->paginate(15);
+        $page = UserFans::query()->where('user_id', $user->id)->with('fans')->paginate(15);
         return view('User::fans', ['page' => $page, 'user' => $user]);
     }
 
     // 用户收藏
 
-    #[GetMapping(path: '/users/collections/{id}')]
+    #[GetMapping('/users/collections/{id}')]
     public function collections($id)
     {
         if (! User::query()->where('id', $id)->exists()) {

@@ -10,7 +10,7 @@ declare(strict_types=1);
  */
 namespace App\Plugins\User\src\Middleware;
 
-use Hyperf\Utils\Str;
+use Hyperf\Stringable\Str;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -44,15 +44,14 @@ class AuthMiddleware implements MiddlewareInterface
                     return $handler->handle($request);
                 }
             }
-            // 邮箱验证
-            if ((int) get_options('core_user_email_ver', 1) === 1 && ! strtotime(@$auth->email_ver_time?:'1') && request()->path() !== 'user/ver_email' && request()->path() !== 'user/ver_phone' && request()->path() !== 'user/ver_phone/send') {
-                return redirect()->url('/user/ver_email')->go();
+            // 验证封号
+            if ((int) $auth->class_id === (int) get_options('user_black_group_id')) {
+                auth()->logout();
+                return redirect()->url('/')->with('warning', '您的账号已被封禁，已强制退出登录')->go();
             }
-            // 手机号验证
-            if (get_options('core_user_sms', '关闭') === '开启' && ! strtotime(@$auth->phone_ver_time?:'1') && request()->path() !== 'user/ver_phone' && request()->path() !== 'user/ver_email'
-                && request()->path() !== 'user/ver_phone/send'
-            ) {
-                return redirect()->url('/user/ver_phone')->go();
+            // 邮箱验证
+            if ((int) get_options('core_user_email_ver', 1) === 1 && ! strtotime(@$auth->email_ver_time ?: '1') && request()->path() !== 'user/ver_email' && request()->path() !== 'user/ver_phone' && request()->path() !== 'user/ver_phone/send') {
+                return redirect()->url('/user/ver_email')->go();
             }
         }
         return $handler->handle($request);

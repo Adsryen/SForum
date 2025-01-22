@@ -5,7 +5,7 @@
 
 <input type="hidden" name="basis[topic_id]" value="{{$data->id}}">
 <div class="mb-3">
-    <label class="form-label">选择标签</label>
+    <label class="form-label">选择板块</label>
     <select type="text" name="basis[tag]" class="form-select" id="select-topic-tags" required>
         @foreach(\App\Plugins\Topic\src\Models\TopicTag::query()->where('status','=',null)->get() as $topic_tags)
             <option value="{{$topic_tags->id}}"
@@ -31,12 +31,14 @@
 
 <script src="{{file_hash("js/axios.min.js")}}"></script>
 <script defer>
-    const target = document.getElementsByTagName("html")[0]
-    const body_className = document.getElementsByTagName("html")[0].getAttribute("data-theme");
+    const target = document.getElementsByTagName("body")[0]
+    const body_className = document.getElementsByTagName("body")[0].getAttribute("data-bs-theme");
     const observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
-            if (body_className !== document.getElementsByTagName("html")[0].getAttribute("data-theme")) {
-                location.reload()
+            if (body_className !== document.getElementsByTagName("body")[0].getAttribute("data-bs-theme")) {
+                setTimeout(()=>{
+                    location.reload()
+                },200)
             }
         });
     });
@@ -66,8 +68,9 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         let options = {
+            fullscreen_native: true,
             selector: '#basis-content',
-            height: 450,
+            height: 500,
             menu:{!! \App\Plugins\Topic\src\Lib\Edit\Editor::menu() !!},
             menubar:"{!! \App\Plugins\Topic\src\Lib\Edit\Editor::menubar() !!}",
             statusbar: true,
@@ -101,7 +104,8 @@
             mobile:{
                 menu:{!! \App\Plugins\Topic\src\Lib\Edit\Editor::menu() !!},
                 menubar:"{!! \App\Plugins\Topic\src\Lib\Edit\Editor::menubar() !!}",
-                toolbar_mode: 'scrolling'
+                toolbar_mode: 'scrolling',
+                content_style: 'img{max-width:300px}'
             },
             autosave_ask_before_unload: true,
             autosave_interval: '1s',
@@ -109,9 +113,9 @@
             autosave_restore_when_empty: false,
             autosave_retention: '1400m',
             branding:false,
-            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }'
+            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; } img{max-width:700px}'
         }
-        if (document.body.className === 'theme-dark') {
+        if (document.body.getAttribute("data-bs-theme") === 'dark') {
             options.skin = 'oxide-dark';
             options.content_css = 'dark';
         }

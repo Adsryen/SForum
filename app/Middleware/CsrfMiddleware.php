@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
-use Hyperf\Utils\Str;
+use Hyperf\Stringable\Str;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -32,7 +32,7 @@ class CsrfMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (!config('codefec.app.csrf')) {
+        if (!\Hyperf\Config\config('codefec.app.csrf')) {
             return $handler->handle($request);
         }
         foreach (Itf()->get('csrf') as $value) {
